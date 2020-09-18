@@ -7,11 +7,23 @@ class Etailers_Popup_Block_Adminhtml_Popup_Edit_Tab_Form extends Mage_Adminhtml_
       $form = new Varien_Data_Form();
       $this->setForm($form);
       $fieldset = $form->addFieldset('popup_form', array('legend'=>Mage::helper('popup')->__('Popup Information')));
-     
+
+      $yesNoOptions = array(
+          array(
+              'value'     => 1,
+              'label'     => Mage::helper('adminhtml')->__('Yes'),
+          ),
+          array(
+              'value'     => 0,
+              'label'     => Mage::helper('adminhtml')->__('No'),
+          ),
+      );
+
        /**
 		* Check is single store mode
 		*/
 		if (!Mage::app()->isSingleStoreMode()) {
+            $isElementDisabled = false;
 			$fieldset->addField('store_id', 'multiselect', array(
 				'name'      => 'stores[]',
 				'label'     => Mage::helper('cms')->__('Store View'),
@@ -40,6 +52,47 @@ class Etailers_Popup_Block_Adminhtml_Popup_Edit_Tab_Form extends Mage_Adminhtml_
           'label'     => Mage::helper('popup')->__('Description'),
           'style'     => 'width:700px; height:100px;',
           'name'      => 'popup_description',
+      ));
+
+      $fieldset->addField('utm_campaign', 'text', array(
+          'label'     => Mage::helper('popup')->__('Campaign Expression'),
+          'name'      => 'utm_campaign',
+          'note'      => Mage::helper('popup')->__('Display for specific campaign only'),
+      ));
+
+      $fieldset->addField('url_expression', 'text', array(
+          'label'     => Mage::helper('popup')->__('Match URL Expression'),
+          'name'      => 'url_expression',
+      ));
+
+      $fieldset->addField('full_action_name', 'text', array(
+          'label'     => Mage::helper('popup')->__('Match Full Action Name Expression'),
+          'name'      => 'full_action_name',
+          'note'      => Mage::helper('popup')->__('cms_page_view,catalog_category_view,catalog_product_view,checkout_cart_index'),
+      ));
+
+      $fieldset->addField('show_after', 'text', array(
+          'label'     => Mage::helper('popup')->__('Show After Popups'),
+          'name'      => 'show_after',
+          'note'      => Mage::helper('popup')->__('Comma separated popup ids to display after'),
+      ));
+
+      $fieldset->addField('max_show_times', 'text', array(
+          'label'     => Mage::helper('popup')->__('Maximum Expositions'),
+          'name'      => 'max_show_times',
+          'class'     => 'validate-number',
+      ));
+
+      $fieldset->addField('first_show_delay', 'text', array(
+          'label'     => Mage::helper('popup')->__('First Exposition Delay, s'),
+          'class'     => 'validate-number',
+          'name'      => 'first_show_delay',
+      ));
+
+      $fieldset->addField('min_show_interval', 'text', array(
+          'label'     => Mage::helper('popup')->__('Minimum Exposition Interval, s'),
+          'class'     => 'validate-number',
+          'name'      => 'min_show_interval',
       ));
             
         $dateFormatIso = Mage::app()->getLocale()->getDateFormat(Mage_Core_Model_Locale::FORMAT_TYPE_SHORT);
@@ -82,6 +135,24 @@ class Etailers_Popup_Block_Adminhtml_Popup_Edit_Tab_Form extends Mage_Adminhtml_
               ),
           ),
       ));
+
+      $fieldset->addField('is_collapsed', 'select', array(
+          'label'     => Mage::helper('popup')->__('Is Collapsed'),
+          'name'      => 'is_collapsed',
+          'values'    => $yesNoOptions
+      ));
+
+      $fieldset->addField('can_collapse', 'select', array(
+          'label'     => Mage::helper('popup')->__('Can Collapse'),
+          'name'      => 'can_collapse',
+          'values'    => $yesNoOptions
+      ));
+
+      $fieldset->addField('can_close', 'select', array(
+          'label'     => Mage::helper('popup')->__('Can Close'),
+          'name'      => 'can_close',
+          'values'    => $yesNoOptions
+      ));
      
      /*
      $fieldset->addField('filename', 'file', array(
@@ -107,8 +178,8 @@ class Etailers_Popup_Block_Adminhtml_Popup_Edit_Tab_Form extends Mage_Adminhtml_
           $form->getElement('popup_coupon')->setIsChecked($popupData["popup_coupon"]);
           Mage::getSingleton('adminhtml/session')->setPopupData(null);
       } elseif ( Mage::registry('popup_data') ) {
-          $popupData = Mage::registry('popup_data')->getData();
-          $form->setValues($popupData);
+          $popupData = Mage::registry('popup_data');
+          $form->setValues($popupData->getData());
           $form->getElement('popup_coupon')->setIsChecked($popupData["popup_coupon"]);
       }
       return parent::_prepareForm();

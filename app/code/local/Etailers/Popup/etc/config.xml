@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Etailers_Popup>
-            <version>0.1.0</version>
+            <version>0.1.1</version>
         </Etailers_Popup>
     </modules>
     <frontend>
@@ -62,31 +62,27 @@
             </modules>
         </translate>
 		<menu>
-            <utilities_etailers translate="title" module="popup">
-                <title>Utilities ET</title>
-                <sort_order>100</sort_order>
+            <promo>
                 <children>
                     <popup translate="title" module="popup">
                         <title>Manage Popups Promotions</title>
                         <action>popup/adminhtml_popup</action>
-                        <sort_order>1</sort_order>
+                        <sort_order>500</sort_order>
                     </popup>
                 </children>
-            </utilities_etailers>
+            </promo>
         </menu>
 		<acl>
 			<resources>
 				<admin>
 					<children>
-						<utilities_etailers translate="title" module="popup">
-							<title>Utilities ET</title>
-							<sort_order>30</sort_order>
+						<promo>
 							<children>
 								<popup translate="title">
 									<title>Manage Popups Promotions</title> 
 								</popup>
 							</children>
-						</utilities_etailers>
+						</promo>
 					</children>
 				</admin>
 			</resources>

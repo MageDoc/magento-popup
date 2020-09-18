@@ -9,6 +9,10 @@ class Etailers_Popup_Model_Mysql4_Popup extends Mage_Core_Model_Mysql4_Abstract
      */
     protected $_store  = null;
 
+    protected $_serializableFields = array(
+        'fancybox_settings' => array(array(), array()),
+    );
+
     /**
      * Initialize resource model
      *
@@ -141,7 +145,7 @@ class Etailers_Popup_Model_Mysql4_Popup extends Mage_Core_Model_Mysql4_Abstract
             $select->join(
                 array('popup_store' => $this->getTable('popup/popup_store')),
                 $this->getMainTable() . '.popup_id = popup_store.popup_id',
-                array())
+                array('store_id'))
                 ->where('popup_store.store_id IN (?)', $storeIds)
                 ->order('popup_store.store_id DESC')
                 ->limit(1);
@@ -213,7 +217,9 @@ class Etailers_Popup_Model_Mysql4_Popup extends Mage_Core_Model_Mysql4_Abstract
             return array();
         }
 
-        return $result[0];
+        $popup = Mage::getModel('popup/popup')->setData($result[0]);
+
+        return $popup;
     }
     
     /**
@@ -241,7 +247,9 @@ class Etailers_Popup_Model_Mysql4_Popup extends Mage_Core_Model_Mysql4_Abstract
             return array();
         }
 
-        return $result[0];
+        $popup = Mage::getModel('popup/popup')->setData($result[0]);
+
+        return $popup;
     }
     
     public function saveLastPopupId($subscriberID, $popupID)

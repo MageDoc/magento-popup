@@ -75,6 +75,11 @@ class Etailers_Popup_Model_Mysql4_Popup_Collection extends Mage_Core_Model_Mysql
             }
         }
 
+        $resource = $this->getResource();
+        foreach ($this->getItems() as $item) {
+            $resource->unserializeFields($item);
+        }
+
         return parent::_afterLoad();
     }
 

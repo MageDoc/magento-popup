@@ -2,43 +2,218 @@
 
 <?php if($popup) : ?>
 	
-	<?php 
+	<?php
+        $containerId = 'popup_container_'.$popup->getId();
 		$background = "";
 		$width = "";
 		$image = "";
 		if($popup['popup_image']){
 			$background = 'background:url('.Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)."popup/".$popup['popup_image'].') top left no-repeat;';
 			$image = '<img src='.Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA)."popup/".$popup['popup_image'].' alt="" />';
-			if($popup['popup_image_width']) $width = 'width:'.$popup['popup_image_width'].'px; height:'.$popup['popup_image_height'].'px;';
+			if($popup['popup_image_width']) $width = 'width:'.(int)$popup['popup_image_width'].'px; height:'.(int)$popup['popup_image_height'].'px;';
 		} 
 	?>
-	
-	<div style="display:none;">
-		<div id="divPopup" style="<?php echo $background; ?> <?php echo $width; ?>">
-			<?php if($popup['popup_content_html']) echo $popup['popup_content_html']; ?>
-		</div>
-	</div>
-			
+
+    <div id="<?php echo $containerId?>" class="popup" style="display:none; <?php echo $background; ?> <?php echo $width; ?>">
+        <?php if ($popup['popup_content_html']) echo $popup['popup_content_html']; ?>
+    </div>
+
 	<script type="text/javascript">
-		jQuery(document).ready(function() {
-			jQuery.fancybox({
-				'href': '#divPopup'
-			});
-			
-			
-			//Put value in popup_id input hidden
-            <?php if($popup['popup_id']): ?>  
-                if(jQuery("#popup_popup_id").length > 0){
-                    jQuery("#popup_popup_id").val(<?php echo $popup['popup_id']; ?>); 
+        var PopupManager = function(popupContainerId, popupJson, settings) {
+            var $this = this;
+            this.settings = {
+                cookie_lifetime: 365,
+                debug: false,
+            };
+
+            jQuery.extend(this.settings, settings);
+
+            var F = {
+                collapse: function () {
+                    $this.log('collapse');
+                    popupContainer.show();
+                    popupContainer.addClass('collapsed');
+                    $this.setCookieOption(popupContainerId, 'collapsed', true);
+                    if (callbackButton = document.getElementById("callback_button")) {
+                        var height = popupContainer.height();
+                        callbackButton.style.marginBottom = height + 'px';
+                    }
+                },
+
+                close: function () {
+                    $this.log('close');
+                    popupContainer.hide();
+                    popupContainer.removeClass('collapsed');
+                    popupContainer.addClass('closed');
+                    $this.setCookieOption(popupContainerId, 'closed', true);
+                    $this.setCookieOption(popupContainerId, 'last_showed_at', new Date().getTime());
+                    if (callbackButton = document.getElementById("callback_button")){
+                        callbackButton.style.marginBottom = 0;
+                    }
+                },
+
+                show: function() {
+                    $this.log('show');
+                    shownTimes += 1;
+                    popupState.shown_times = shownTimes;
+                    popupState.last_showed_at = new Date().getTime();
+                    popupState.closed = null;
+                    popupState.collapsed = null;
+                    $this.setCookieOption(popupContainerId, popupState);
+                    popupsShown = popupsShown
+                        ? popupsShown + ',' + popupJson.popup_id
+                        : popupJson.popup_id;
+                    utils.setCookie('popups_shown', popupsShown, $this.settings.cookie_lifetime);
+
+                    if (popupJson.is_collapsed) {
+                        F.collapse();
+                    } else {
+                        document.popups[popupContainerId] = jQuery.fancybox.open(popupContainer, fancyboxSettings);
+                    }
+                },
+
+                init: function () {
+                    if(popupId && jQuery("#popup_popup_id").length > 0){
+                        jQuery("#popup_popup_id").val(popupId);
+                    }
+
+                    $this.log('showTimeout');
+                    $this.log(showTimeout);
+                    if (canShowPopup) {
+                        if (showCollapsed) {
+                            F.collapse();
+                        } else if (showPopup) {
+                            $this.log('setTimeout');
+                            setTimeout(
+                                F.show,
+                                showTimeout);
+                        }
+                    }
+
+                    if(popupJson.popup_url && !popupJson.popup_newsletter) {
+                        popupContainer.click(function(){
+                            if (_gaq) {
+                                _gaq.push(['_trackEvent', 'pop-up', 'link-popup', 'click-link-popup-<?php echo $popup['popup_id']?>']);
+                            }
+                            window.location.href = popupJson.popup_url;
+                        });
+                    }
+
+                    popupContainer.on('click', '.close', function(){
+                        F.close();
+                    });
                 }
-			<?php endif; ?>
-            
-			<?php if($popup['popup_url'] && !$popup['popup_newsletter']): ?>  
-				jQuery("#divPopup").click(function(){
-					_gaq.push(['_trackEvent', 'pop-up', 'link-popup', 'click-link-popup-<?php echo $popup['popup_id']?>']);
-					window.location.href = "<?php echo $popup['popup_url']; ?>";  
-				});
-			<?php endif; ?>
+            }
+
+            var popupContainerId = popupContainerId;
+            var popupJson = popupJson;
+            var popupContainerSelector = '#'+popupContainerId;
+            var popupContainer = jQuery(popupContainerSelector);
+
+            var popupId = popupJson['popup_id'];
+            $this.log(popupJson);
+
+            var fancyboxSettings = {
+                'padding': 0,
+                'afterClose': function (event) {
+                    $this.setCookieOption(popupContainerId, 'last_showed_at', new Date().getTime());
+                    if (popupJson.can_collapse){
+                        F.collapse();
+                    }
+                }
+            };
+            if (typeof popupJson.fancybox_settings == 'object') {
+                for (var key in popupJson.fancybox_settings) {
+                    fancyboxSettings[key] = popupJson.fancybox_settings[key];
+                }
+            }
+            var startDate = new Date(popupJson.popup_date_start);
+            var endDate = new Date(popupJson.popup_date_end + ' 23:59:59');
+            var now = new Date();
+
+            var popupState = $this.getCookieOption(popupContainerId);
+
+            $this.log(popupState);
+
+            var popupsShown = utils.getCookie('popups_shown');
+
+            var shownTimes = parseInt(popupState.shown_times) || 0;
+            var showTimeout = popupState.last_showed_at
+                ? (popupJson.min_show_interval
+                    ? Math.max(+popupState.last_showed_at + popupJson.min_show_interval * 1000 - now.getTime(), 0)
+                    : 0)
+                : (parseInt(popupJson.first_show_delay) * 1000 || 0);
+
+            var sourceInfo = utils.getCookie('sourceInfo');
+            sourceInfo = typeof sourceInfo != 'undefined'
+                ? utils.parseQueryString(sourceInfo)
+                : {};
+            var canShowPopup = (!popupJson.popup_date_start || startDate <= now)
+                && (!popupJson.popup_date_end || now <= endDate)
+                && (!popupJson.utm_campaign
+                    || sourceInfo.c == popupJson.utm_campaign
+                    || sourceInfo.utm_campaign == popupJson.utm_campaign)
+                /*&& (!popupJson.min_show_interval || !popupState.last_showed_at
+                    || now.getTime() > popupState.last_showed_at + popupJson.min_show_interval * 1000)*/
+                //*&& !popupState.closed*/
+                || utils.queryString.popup == 'preview';
+            var showCollapsed = canShowPopup
+                && popupState.collapsed
+                && !popupState.closed;
+            var showPopup = canShowPopup
+                && !showCollapsed
+                && (!popupJson.max_show_times || shownTimes < popupJson.max_show_times);
+
+            $this.log('canShowPopup', canShowPopup);
+            $this.log('showCollapsed', showCollapsed);
+            $this.log('showPopup', showPopup);
+
+            if (typeof document.popups) {
+                document.popups = {};
+            }
+
+            F.init();
+        };
+
+        PopupManager.prototype = {
+            log: function() {
+                if (this.settings.debug) {
+                    console.log.apply(null, arguments);
+                }
+            },
+
+            getCookieOption: function (cookie, option) {
+                return utils.getCookie(cookie)
+                    ? (typeof option != 'undefined'
+                        ? utils.parseQueryString(utils.getCookie(cookie)).option
+                        : utils.parseQueryString(utils.getCookie(cookie))
+                    )
+                    : {};
+            },
+
+            setCookieOption: function (cookie, option, value) {
+                this.log('setCookieOption', cookie, option, value)
+                var object = this.getCookieOption(cookie);
+                if (typeof option === 'object') {
+                    jQuery.extend(object, option);
+                    for (var key in object) {
+                        if (object[key] === null) {
+                            delete object[key];
+                        }
+                    }
+                } else if (value !== null){
+                    object[option] = value;
+                } else {
+                    delete object[option];
+                }
+                utils.setCookie(cookie, utils.createQueryString(object), this.cookie_lifetime);
+            },
+        };
+
+		jQuery(document).ready(function() {
+            var popupContainerId = '<?php echo $containerId?>';
+            var popupJson = <?php echo $this->getPopupJson($popup); ?>;
+            var popupManager = new PopupManager(popupContainerId, popupJson)
 		});
 	</script>
 	

@@ -5,8 +5,8 @@ class Etailers_Popup_Adminhtml_PopupController extends Mage_Adminhtml_Controller
 
 	protected function _initAction() {
 		$this->loadLayout()
-			->_setActiveMenu('popup/items')
-			->_addBreadcrumb(Mage::helper('adminhtml')->__('Items Manager'), Mage::helper('adminhtml')->__('Item Manager'));
+			->_setActiveMenu('promo/popup')
+			->_addBreadcrumb(Mage::helper('adminhtml')->__('Promo'), Mage::helper('popup')->__('Manage Popups Promotions'));
 		
 		return $this;
 	}   
@@ -15,18 +15,30 @@ class Etailers_Popup_Adminhtml_PopupController extends Mage_Adminhtml_Controller
 		$this->_initAction()
 			->renderLayout();
 	}
+	
+	protected function _initPopup()
+    {
+        $id     = $this->getRequest()->getParam('id');
+        $model  = Mage::getModel('popup/popup')->load($id);
 
-	public function editAction() {
-		$id     = $this->getRequest()->getParam('id');
-		$model  = Mage::getModel('popup/popup')->load($id);
+        if ($id && !$model->getId()){
+            Mage::throwException(Mage::helper('popup')->__('Popup does not exist'));
+        }
 
-		if ($model->getId() || $id == 0) {
-			$data = Mage::getSingleton('adminhtml/session')->getFormData(true);
-			if (!empty($data)) {
-				$model->setData($data);
-			}
+        $data = Mage::getSingleton('adminhtml/session')->getData('form_data', true);
+        if (!empty($data)) {
+            $model->addData($data);
+        }
 
-			Mage::register('popup_data', $model);
+        Mage::register('popup_data', $model);
+
+        return $model;
+    }
+
+	public function editAction()
+    {
+		try {
+            $model = $this->_initPopup();
 
 			$this->loadLayout();
 			$this->_setActiveMenu('popup/items');
@@ -43,10 +55,14 @@ class Etailers_Popup_Adminhtml_PopupController extends Mage_Adminhtml_Controller
 				->_addLeft($this->getLayout()->createBlock('popup/adminhtml_popup_edit_tabs'));
 
 			$this->renderLayout();
-		} else {
-			Mage::getSingleton('adminhtml/session')->addError(Mage::helper('popup')->__('Item does not exist'));
+		} catch(Mage_Core_Exception $e) {
+			Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
 			$this->_redirect('*/*/');
-		}
+		} catch(Exception $e) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('popup')->__('An error occured while trying to edit popup'));
+            Mage::logException($e);
+            $this->_redirect('*/*/');
+        }
 	}
  
 	public function newAction() {
@@ -66,6 +82,10 @@ class Etailers_Popup_Adminhtml_PopupController extends Mage_Adminhtml_Controller
 				$data["popup_newsletter"] = 1;                            
 			}else{
                  $data["popup_newsletter"] = 0;       
+            }
+
+			if (empty($data["utm_campaign"])) {
+                $data["utm_campaign"] = null;
             }
 			
 			if(isset($_FILES['popup_image']['name']) && $_FILES['popup_image']['name'] != '') {

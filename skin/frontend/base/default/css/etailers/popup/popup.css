@@ -5,13 +5,13 @@
  *
  */
 
-#divPopup{
+#popup-container{
 	text-align: left;
 	position:relative;
 	overflow:hidden;
 }
 
-#divPopup .popup-newsletter{
+#popup-container .popup-newsletter{
 	text-align: left;
 	padding:10px;
 	position:relative;

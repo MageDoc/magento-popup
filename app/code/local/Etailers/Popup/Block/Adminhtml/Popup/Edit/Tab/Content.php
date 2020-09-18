@@ -76,16 +76,15 @@ class Etailers_Popup_Block_Adminhtml_Popup_Edit_Tab_Content extends Mage_Adminht
           'config'    => $wysiwygConfig,
       ));
 
-     
       if ( Mage::getSingleton('adminhtml/session')->getPopupData() )
       {   $popupData = Mage::getSingleton('adminhtml/session')->getPopupData();
           $form->setValues($popupData);
           $form->getElement('popup_newsletter')->setIsChecked($popupData["popup_newsletter"]);
           Mage::getSingleton('adminhtml/session')->setPopupData(null);
       } elseif ( Mage::registry('popup_data') ) {
-          $popupData = Mage::registry('popup_data')->getData();
+          $popupData = Mage::registry('popup_data');
+          $form->setValues($popupData->getData());
           $form->getElement('popup_newsletter')->setIsChecked($popupData["popup_newsletter"]);
-          $form->setValues($popupData);
       }
       return parent::_prepareForm();
   }
