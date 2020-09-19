@@ -154,6 +154,8 @@ class Etailers_Popup_Block_Popup extends Mage_Core_Block_Template
             'popup_url'
         );
 
+        return json_encode($popup->toArray($serializableAttributes), JSON_NUMERIC_CHECK);
+
         return $popup->toJson($serializableAttributes);
     }
 
