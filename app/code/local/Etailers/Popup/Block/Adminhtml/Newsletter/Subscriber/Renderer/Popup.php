@@ -4,8 +4,9 @@ class Etailers_Popup_Block_Adminhtml_Newsletter_Subscriber_Renderer_Popup extend
 {
     public function render(Varien_Object $row)
     {
-        if($row->getData("last_popup_id")) $value =  "<b>ID ".$row->getData("last_popup_id"). "</b> - ". $row->getData("popup_title");
-        return '<span>'.$value.'</span>';
+        return $row->getData("last_popup_id")
+            ? "<span><b>ID {$row->getData("last_popup_id")}</b> - {$row->getData("popup_title")}</span>"
+            : '';
     }
 }
 
