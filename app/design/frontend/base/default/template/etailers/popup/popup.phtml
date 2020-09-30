@@ -39,7 +39,7 @@
                         callbackButton.style.marginBottom = height + 'px';
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse');
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse']);
                     }
                 },
 
@@ -54,7 +54,7 @@
                         callbackButton.style.marginBottom = 0;
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close');
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close']);
                     }
                 },
 
@@ -77,7 +77,7 @@
                         document.popups[popupContainerId] = jQuery.fancybox.open(popupContainer, fancyboxSettings);
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show');
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show']);
                     }
                 },
 
@@ -102,7 +102,7 @@
                     if(popupJson.popup_url && !popupJson.popup_newsletter) {
                         popupContainer.click(function(){
                             if (_gaq) {
-                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Link Click');
+                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Link Click']);
                             }
                             window.location.href = popupJson.popup_url;
                         });
