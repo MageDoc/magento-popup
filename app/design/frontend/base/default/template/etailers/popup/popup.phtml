@@ -136,8 +136,8 @@
                     fancyboxSettings[key] = popupJson.fancybox_settings[key];
                 }
             }
-            var startDate = new Date(popupJson.popup_date_start);
-            var endDate = new Date(popupJson.popup_date_end + ' 23:59:59');
+            var startDate = new Date(popupJson.popup_date_start.replace(/-/g, '/'));
+            var endDate = new Date((popupJson.popup_date_end + ' 23:59:59').replace(/-/g, '/'));
             var now = new Date();
 
             var popupState = $this.getCookieOption(popupContainerId);
@@ -192,7 +192,7 @@
         PopupManager.prototype = {
             log: function() {
                 if (this.settings.debug) {
-                    console.log.apply(null, arguments);
+                    console.log(arguments);
                 }
             },
 
