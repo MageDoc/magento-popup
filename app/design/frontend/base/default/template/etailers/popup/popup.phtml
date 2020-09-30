@@ -148,15 +148,20 @@
             sourceInfo = typeof sourceInfo != 'undefined'
                 ? utils.parseQueryString(sourceInfo)
                 : {};
+            var queryString = typeof utils.queryString != 'undefined'
+                ? utils.queryString
+                : {};
             var canShowPopup = (!popupJson.popup_date_start || startDate <= now)
                 && (!popupJson.popup_date_end || now <= endDate)
                 && (!popupJson.utm_campaign
                     || sourceInfo.c == popupJson.utm_campaign
-                    || sourceInfo.utm_campaign == popupJson.utm_campaign)
+                    || sourceInfo.utm_campaign == popupJson.utm_campaign
+                    || queryString.c == popupJson.utm_campaign
+                    || queryString.utm_campaign == popupJson.utm_campaign)
                 /*&& (!popupJson.min_show_interval || !popupState.last_showed_at
                     || now.getTime() > popupState.last_showed_at + popupJson.min_show_interval * 1000)*/
                 //*&& !popupState.closed*/
-                || utils.queryString.popup == 'preview';
+                || queryString.popup == 'preview';
             var showCollapsed = canShowPopup
                 && popupState.collapsed
                 && !popupState.closed;
