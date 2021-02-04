@@ -39,7 +39,7 @@
                         callbackButton.style.marginBottom = height + 'px';
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse']);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse', true]);
                     }
                 },
 
@@ -54,7 +54,7 @@
                         callbackButton.style.marginBottom = 0;
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close']);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close', true]);
                     }
                 },
 
@@ -77,7 +77,7 @@
                         document.popups[popupContainerId] = jQuery.fancybox.open(popupContainer, fancyboxSettings);
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show']);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show', true]);
                     }
                 },
 
