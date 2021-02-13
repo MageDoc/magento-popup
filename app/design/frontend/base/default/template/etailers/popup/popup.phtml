@@ -39,7 +39,7 @@
                         callbackButton.style.marginBottom = height + 'px';
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse', true]);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Collapse', 0, true]);
                     }
                 },
 
@@ -54,7 +54,7 @@
                         callbackButton.style.marginBottom = 0;
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close', true]);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Close', 0, true]);
                     }
                 },
 
@@ -77,7 +77,7 @@
                         document.popups[popupContainerId] = jQuery.fancybox.open(popupContainer, fancyboxSettings);
                     }
                     if (_gaq) {
-                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show', true]);
+                        _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Show', 0, true]);
                     }
                 },
 
@@ -102,7 +102,7 @@
                     if(popupJson.popup_url && !popupJson.popup_newsletter) {
                         popupContainer.click(function(){
                             if (_gaq) {
-                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Link Click']);
+                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 0, 'Link Click']);
                             }
                             window.location.href = popupJson.popup_url;
                         });
