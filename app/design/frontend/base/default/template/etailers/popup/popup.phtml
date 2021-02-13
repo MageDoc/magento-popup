@@ -102,7 +102,7 @@
                     if(popupJson.popup_url && !popupJson.popup_newsletter) {
                         popupContainer.click(function(){
                             if (_gaq) {
-                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 0, 'Link Click']);
+                                _gaq.push(['_trackEvent', 'Popup', popupContainerId, 'Link Click']);
                             }
                             window.location.href = popupJson.popup_url;
                         });
